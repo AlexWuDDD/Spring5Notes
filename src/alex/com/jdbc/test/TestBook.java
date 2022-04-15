@@ -1,5 +1,6 @@
 package alex.com.jdbc.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -43,8 +44,40 @@ public class TestBook {
         // Book book = bookService.findOne("1");
         // System.out.println(book);
 
-        List<Book> books = bookService.findAll();
-        System.out.println(books);
+        // List<Book> books = bookService.findAll();
+        // System.out.println(books);
+
+        //批量添加
+        // List<Object[]> batchArgs = new ArrayList<>();
+        // Object[] o1 = {"11", "PHP", "A"};
+        // Object[] o2 = {"12", "CPP", "B"};
+        // Object[] o3 = {"13", "PYTHON", "C"};
+
+        // batchArgs.add(o1);
+        // batchArgs.add(o2);
+        // batchArgs.add(o3);
+        // bookService.batchAdd(batchArgs);
+
+        //批量修改
+        // List<Object[]> batchArgs = new ArrayList<>();
+        // Object[] o1 = {"PHP1", "A1", "11"};
+        // Object[] o2 = {"CPP2", "B2", "12"};
+        // Object[] o3 = {"PYTHON3", "C3", "13"};
+
+        // batchArgs.add(o1);
+        // batchArgs.add(o2);
+        // batchArgs.add(o3);
+        // bookService.batchUpdate(batchArgs);
+
+        List<Object[]> batchArgs = new ArrayList<>();
+        Object[] o1 = {"11"};
+        Object[] o2 = {"12"};
+        Object[] o3 = {"13"};
+
+        batchArgs.add(o1);
+        batchArgs.add(o2);
+        batchArgs.add(o3);
+        bookService.batchDelete(batchArgs);
     }
 
 }

@@ -44,4 +44,19 @@ public class BookService {
     public List<Book> findAll(){
         return bookDao.findAllBooks();
     }
+
+    //批量添加
+    public void batchAdd(List<Object[]> batchArgs){
+        bookDao.batchAddBook(batchArgs);
+    }
+
+    //批量添加
+    public void batchUpdate(List<Object[]> batchArgs){
+        bookDao.batchUpdateBook(batchArgs);
+    }
+
+    //批量添加
+    public void batchDelete(List<Object[]> batchArgs){
+        bookDao.batchDeleteBook(batchArgs);
+    }
 }

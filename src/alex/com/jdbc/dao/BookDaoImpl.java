@@ -1,5 +1,6 @@
 package alex.com.jdbc.dao;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,29 @@ public class BookDaoImpl implements BookDao{
         String sql = "select * from books";
         List<Book> bookList = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Book>(Book.class));
         return bookList;
+    }
+
+    @Override
+    public void batchAddBook(List<Object[]> batchArgs) {
+        
+        String sql = "insert into books(user_id,user_name,user_sts) values(?,?,?)";
+        int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+        System.out.println(Arrays.toString(ints));
+    }
+
+    @Override
+    public void batchUpdateBook(List<Object[]> batchArgs) {
+        String sql = "update books set user_name=?, user_sts=? where user_id=?";
+        int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+        System.out.println(Arrays.toString(ints));
+        
+    }
+
+    @Override
+    public void batchDeleteBook(List<Object[]> batchArgs) {
+        String sql = "delete from books where user_id=?";
+        int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+        System.out.println(Arrays.toString(ints));
     }
     
 }
