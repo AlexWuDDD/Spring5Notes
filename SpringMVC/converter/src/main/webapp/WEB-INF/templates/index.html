@@ -8,6 +8,9 @@
 </head>
 <body>
 <h1>首页</h1>
+<a th:href="@{/interceptor}">拦截器</a>
+<a th:href="@{/testExceptionHandler}">测试异常处理</a>
+<a th:href="@{/testExceptionHandler2}">测试异常处理2</a>
 
 <form th:action="@{/testRequestBody}" method="post">
   用户名：<input type="text" name="username" value="admin">
@@ -51,7 +54,6 @@
       }
     }
   });
-
 </script>
 
 </body>

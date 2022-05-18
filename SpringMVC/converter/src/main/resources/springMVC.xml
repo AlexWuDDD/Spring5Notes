@@ -49,13 +49,40 @@
     -->
    <mvc:view-controller path="/" view-name="index"></mvc:view-controller>
    <mvc:view-controller path="/file" view-name="file"></mvc:view-controller>
+   <mvc:view-controller path="/interceptor" view-name="interceptor"></mvc:view-controller>
 
    <!-- 开放对静态资源的访问 -->
    <mvc:default-servlet-handler />
 
    <!-- 开启mvc的注解驱动 -->
-   <mvc:annotation-driven />
+   <mvc:annotation-driven/>
 
    <!-- 配置文件上传解析器，将上传的文件封装为MultipartFile -->
    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+
+   <!-- 配置拦截器 -->
+   <mvc:interceptors>
+      <ref bean="firstInterceptor"></ref>
+      <ref bean="secondInterceptor"></ref>
+      <!-- <bean class="com.alex.converter.interceptor.FirstInterceptor"></bean> -->
+      <!-- <ref bean="FirstInterceptor"></ref>-->
+      <!-- <mvc:interceptor> -->
+         <!-- 拦截所有 -->
+         <!-- <mvc:mapping path="/**" />
+         <mvc:exclude-mapping path="/" />
+         <ref bean="firstInterceptor"></ref>
+      </mvc:interceptor>  -->
+
+   </mvc:interceptors>
+
+   <!-- 配置异常处理 -->
+   <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+      <property name="exceptionMappings">
+         <props>
+            <prop key="java.lang.ArithmeticException">error</prop>
+         </props>
+      </property>
+      <!-- 设置将异常信息共享在请求域中的键 -->
+      <property name="exceptionAttribute" value="ex"></property>
+   </bean>
 </beans>
