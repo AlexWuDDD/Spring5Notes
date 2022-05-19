@@ -1,20 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
+  <!-- 
+      Mybatis配置文件中各标签的位置顺序如下:
+      properties, settings, 
+      typeAliases, typeHandlers, 
+      objectFactory,objectWrapperFactory, 
+      plugins, 
+      environments, databaseIdProvider, mappers
+  -->
+  <properties resource="jdbc.properties"></properties>
+
+  <!-- 设置类型别名 -->
+  <typeAliases>
+    <!-- 
+        typeAlias：设置类型别名
+        属性：
+          type: 设置类型别名的类型
+          alias: 设置类型别名的别名，若不设置该属性，那么该类型拥有默认的别名，即类型名且不区分大小写
+     -->
+    <!-- <typeAlias type="com.alex.mybatis.pojo.User" alias="User" /> -->
+    <!-- 
+      以包为单位，将包下所有的类型设置默认的类型别名，即类名且不区分大小写
+     -->
+    <package name="com.alex.mybatis.pojo" />
+  </typeAliases>
+
+
   <!-- 配置连接数据库的环境 -->
+  <!-- 
+    environments: 配置多个连接数据库的环境
+    属性：
+      default: 设置默认使用的环境id
+   -->
   <environments default="development">
+    <!-- 
+      environment: 配置某个具体的环境
+      属性：
+        id: 表示连接数据库的环境的唯一标识，不能重复
+     -->
     <environment id="development">
+      <!-- 
+        transactionManagerType: 设置事务管理器的方式
+        属性：
+          type: "JDBC|MANAGED"
+          JDBC: 表示当前环境中，执行SQL时，使用的是JDBC中原生的事物管理方式，事物的提交或回滚需要手动处理
+          MANAGED: 被管理，例如Spring
+       -->
       <transactionManager type="JDBC" />
+      <!-- 
+        dataSource: 配置数据源
+        属性：
+          type: 设置数据源的类型
+          type="POOLED|UNPOOLED|JNDI"
+          POOLED: 使用数据库连接池缓存数据库连接
+          UNPOOLED：不使用数据库连接池缓存数据库连接
+          JNDI: 表示使用上下文中的数据源
+       -->
       <dataSource type="POOLED">
-        <property name="driver" value="com.mysql.cj.jdbc.Driver" />
-        <property name="url" value="jdbc:mysql://localhost:10086/mybatis" />
-        <property name="username" value="root" />
-        <property name="password" value="123456" />
+        <property name="driver" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
       </dataSource>
     </environment>
   </environments>
   <!-- 引入映射文件 -->
   <mappers>
-    <mapper resource="mappers/UserMapper.xml" />
+    <!-- <mapper resource="mappers/UserMapper.xml" /> -->
+    <!-- 
+      以包为单位引入映射文件
+      要求：
+      1. mapper接口所在的包要和映射文件所在的包一致
+      2. mapper接口要和映射文件的名字一致
+     -->
+    <package name="com.alex.mybatis.mapper" />
   </mappers>
 </configuration>

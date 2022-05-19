@@ -20,12 +20,12 @@
     resultType: 设置默认的映射关系
     resultMap: 设置自定义的映射关系
    -->
-  <select id="getUserById" resultType="com.alex.mybatis.pojo.User">
+  <select id="getUserById" resultType="User">
     select * from t_user where id = 4;        
   </select>
 
-
-  <select id="getAllUser" resultType="com.alex.mybatis.pojo.User">
+  <!-- 类型别名不区分大小写 -->
+  <select id="getAllUser" resultType="User">
     select * from t_user;
   </select>
 
