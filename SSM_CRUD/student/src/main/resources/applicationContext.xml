@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+  <!-- Spring的配置文件，这里主要配置个业务逻辑有关的-->
+
+  <context:component-scan base-package="com.alex.ssm">
+    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+  </context:component-scan>
+
+  <!-- 引入外部属性标签 -->
+  <context:property-placeholder location="classpath:jdbc.properties" />
+  <!-- 配置连接池 -->
+  <bean id="pooledDataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driverClass}"></property>
+    <property name="url" value="${jdbc.url}"></property>
+    <property name="username" value="${jdbc.username}"></property>
+    <property name="password" value="${jdbc.password}"></property>
+  </bean>
+
+  <!-- 配置和MyBatis的整合 -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+		<property name="dataSource" ref="pooledDataSource"></property>
+		<!-- <property name="mapperLocations" value="classpath:mapper/*.xml"></property> -->
+	</bean>
+
+  <!-- 配置扫描器，将mybatis接口的实现加入到ioc容器中 -->
+  <mybatis-spring:scan base-package="com.alex.ssm.dao"/>	
+
+  <!-- 事务控制的配置 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="pooledDataSource"></property>
+	</bean>
+
+  <!-- 开启基于注解的事物，使用xml配置形式的事物（必要主要的都是使用配置式） -->
+  <aop:config>
+		<aop:pointcut expression="execution(* com.alex.ssm.service..*(..))" id="txPoint"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint"/>
+	</aop:config>
+
+  <!-- 配置事务增强 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+      <!-- 所有方法都是事务方法 -->
+			<tx:method name="*"/>
+      <!-- get开始的事物方法 -->
+			<tx:method name="get*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+</beans>
