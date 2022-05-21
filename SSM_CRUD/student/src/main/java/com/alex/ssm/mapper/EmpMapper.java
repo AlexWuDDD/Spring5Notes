@@ -20,6 +20,10 @@ public interface EmpMapper {
 
     Emp selectByPrimaryKey(Integer empId);
 
+    List<Emp> selectByExampleWithDept(EmpExample example);
+
+    Emp selectByPrimaryKeyWithDept(Integer empId);
+
     int updateByExampleSelective(@Param("record") Emp record, @Param("example") EmpExample example);
 
     int updateByExample(@Param("record") Emp record, @Param("example") EmpExample example);

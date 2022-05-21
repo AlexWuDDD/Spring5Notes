@@ -11,6 +11,28 @@ public class Emp {
 
     private Integer dId;
 
+    //希望查询员工的同时部门信息也是查询好的
+    private Dept  department;
+
+    public Emp(){}
+
+    public Emp(Integer empId, String empName, String gender, String email, Integer dId) {
+        this.empId = empId;
+        this.empName = empName;
+        this.gender = gender;
+        this.email = email;
+        this.dId = dId;
+    }
+
+
+    public Dept getDepartment() {
+        return this.department;
+    }
+
+    public void setDepartment(Dept department) {
+        this.department = department;
+    }
+
     public Integer getEmpId() {
         return empId;
     }
@@ -50,4 +72,18 @@ public class Emp {
     public void setdId(Integer dId) {
         this.dId = dId;
     }
+
+
+    @Override
+    public String toString() {
+        return "{" +
+            " empId='" + getEmpId() + "'" +
+            ", empName='" + getEmpName() + "'" +
+            ", gender='" + getGender() + "'" +
+            ", email='" + getEmail() + "'" +
+            ", dId='" + getdId() + "'" +
+            ", department='" + getDepartment() + "'" +
+            "}";
+    }
+
 }

@@ -8,6 +8,20 @@
     <result column="email" property="email" jdbcType="VARCHAR" />
     <result column="d_id" property="dId" jdbcType="INTEGER" />
   </resultMap>
+
+  <resultMap id="WithDeptResultMap" type="com.alex.ssm.bean.Emp" >
+    <id column="emp_id" property="empId" jdbcType="INTEGER" />
+    <result column="emp_name" property="empName" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="d_id" property="dId" jdbcType="INTEGER" />
+    <!-- 指定联合查询出的部门字符安的封装 -->
+    <association property="department" javaType="com.alex.ssm.bean.Dept">
+      <id column="dept_id" property="deptId" />
+      <result column="dept_name" property="deptName"/>
+    </association>
+  </resultMap>
+
   <sql id="Example_Where_Clause" >
     <where >
       <foreach collection="oredCriteria" item="criteria" separator="or" >
@@ -69,6 +83,37 @@
   <sql id="Base_Column_List" >
     emp_id, emp_name, gender, email, d_id
   </sql>
+  <sql id="width_dept_Column_List" >
+    e.emp_id, e.emp_name, e.gender, e.email, e.d_id, d.dept_id, d.dept_name
+  </sql>
+
+  <!-- 查询员工同时带部门信息 -->
+  <!-- List<Emp> selectByExampleWithDept(EmpExample example); -->
+  <select id="selectByExampleWithDept" resultMap="WithDeptResultMap">
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="width_dept_Column_List" />
+    from tbl_emp e
+    left join tbl_dept d on e.d_id = d.dept_id
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <!-- Emp selectByPrimaryKeyWithDept(Integer empId); -->
+  <select id="selectByPrimaryKeyWithDept" resultMap="WithDeptResultMap">
+    select 
+    <include refid="width_dept_Column_List" />
+    from tbl_emp e
+    left join tbl_dept d on e.d_id = d.dept_id
+    where emp_id = #{empId,jdbcType=INTEGER}
+  </select>
+
+  <!-- 查询员工同时不带部门信息 -->
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.alex.ssm.bean.EmpExample" >
     select
     <if test="distinct" >

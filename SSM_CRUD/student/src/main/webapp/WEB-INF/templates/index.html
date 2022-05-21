@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页</title>
+  <!-- 引入样式 -->
+  <link th:href="@{/static/css/bootstrap.min.css}" rel="stylesheet">
+  <script type="text/javascript" th:src="@{/static/js/bootstrap.min.js}"></script>
+  
+</head>
+
+<body>
+  <div class="card" style="width: 18rem; margin: 8px;">
+    <img th:src="@{/static/img/employees.webp}" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">员工列表</h5>
+      <p class="card-text">Alex的员工列表Demo</p>
+      <a th:href=@{/emps} class="btn btn-primary">员工列表</a>
+    </div>
+  </div>
+</body>
+
+</html>

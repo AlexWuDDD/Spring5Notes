@@ -5,6 +5,17 @@ public class Dept {
 
     private String deptName;
 
+
+    public Dept() {
+    }
+
+
+    public Dept(Integer deptId, String deptName) {
+        this.deptId = deptId;
+        this.deptName = deptName;
+    }
+    
+
     public Integer getDeptId() {
         return deptId;
     }
@@ -20,4 +31,14 @@ public class Dept {
     public void setDeptName(String deptName) {
         this.deptName = deptName == null ? null : deptName.trim();
     }
+
+
+    @Override
+    public String toString() {
+        return "{" +
+            " deptId='" + getDeptId() + "'" +
+            ", deptName='" + getDeptName() + "'" +
+            "}";
+    }
+    
 }

@@ -5,11 +5,17 @@
   http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
   id="WebApp_ID" version="2.5">
   
-  <!-- 1. 启动Spring的容器 -->
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:applicationContext.xml</param-value>
-  </context-param>
+  	<!-- 1. 配置监听器启动Spring的容器 -->
+	<!-- needed for ContextLoaderListener -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:applicationContext.xml</param-value>
+	</context-param>
+
+  	<!-- Bootstraps the root web application context before servlet initialization -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
   <!-- 2. SpringMVC前端控制器 -->
   <!-- 配置编码过滤器  必须位于所有过滤器的最前面-->
