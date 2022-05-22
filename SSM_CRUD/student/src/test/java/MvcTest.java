@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.List;
 
 import com.alex.ssm.bean.Emp;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageInfo;
 
 import org.junit.Before;
@@ -71,4 +73,112 @@ public class MvcTest {
     }
   }
   
+  @Test
+  public void testPageWithJson(){
+    try {
+      //模拟请求拿到返回值
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/empswithjson").param("pn", "5")).andReturn();
+      
+      assertNotEquals(result, null);
+
+      //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+      String content = result.getResponse().getContentAsString();
+      System.out.println("content:" + content);
+      ObjectMapper objectMapper = new ObjectMapper();
+      JsonNode jsonNode = objectMapper.readTree(content);
+      System.out.println("当前页码：" + jsonNode.get("pageNum"));
+      System.out.println("总页码" + jsonNode.get("pages"));
+      System.out.println("总记录数" +jsonNode.get("total"));
+      System.out.println("在页面需要连续显示的页码");
+      JsonNode nums = jsonNode.get("navigatepageNums");
+      if(nums.isArray()){
+        for(JsonNode node : nums){
+          System.out.print(" " + node.asInt());
+        }
+      }
+      System.out.println();
+      //获取员工数据
+      JsonNode emps = jsonNode.get("list");
+      if(nums.isArray()){
+        for(JsonNode node: emps){
+          System.out.println(node);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void testPageWithMsg(){
+    try {
+      //模拟请求拿到返回值
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/empswithmsg").param("pn", "5")).andReturn();
+      
+      assertNotEquals(result, null);
+
+      //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+      String content = result.getResponse().getContentAsString();
+      System.out.println("content:" + content);
+      ObjectMapper objectMapper = new ObjectMapper();
+      JsonNode jsonNode = objectMapper.readTree(content);
+      System.out.println("code: " + jsonNode.get("code"));
+      System.out.println("msg: " + jsonNode.get("msg"));
+      JsonNode pageInfo = jsonNode.get("extend").get("pageInfo");
+      System.out.println("当前页码：" + pageInfo.get("pageNum"));
+      System.out.println("总页码" + pageInfo.get("pages"));
+      System.out.println("总记录数" +pageInfo.get("total"));
+      System.out.println("在页面需要连续显示的页码");
+      JsonNode nums = pageInfo.get("navigatepageNums");
+      if(nums.isArray()){
+        for(JsonNode node : nums){
+          System.out.print(" " + node.asInt());
+        }
+      }
+      System.out.println();
+      //获取员工数据
+      JsonNode emps = pageInfo.get("list");
+      if(nums.isArray()){
+        for(JsonNode node: emps){
+          System.out.println(node);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void testDepts(){
+    try {
+      //模拟请求拿到返回值
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/depts")).andReturn();
+      
+      assertNotEquals(result, null);
+
+      //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+      String content = result.getResponse().getContentAsString();
+      System.out.println("content:" + content);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void testNameCheck(){
+    try {
+      //模拟请求拿到返回值
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/checkempname").param("empname", "alexwu")).andReturn();
+      
+      assertNotEquals(result, null);
+
+      //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+      String content = result.getResponse().getContentAsString();
+      System.out.println("content:" + content);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
 }

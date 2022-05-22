@@ -9,7 +9,7 @@
    http://www.springframework.org/schema/context 
    http://www.springframework.org/schema/context/spring-context-3.0.xsd
    http://www.springframework.org/schema/mvc
-   http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+   http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
 
    <!-- 扫描组件 -->
    <context:component-scan base-package="com.alex.ssm" use-default-filters="false" >
@@ -48,10 +48,23 @@
       view-name:设置请求地址所对应的视图名称
     -->
    <mvc:view-controller path="/" view-name="index"></mvc:view-controller>
+   <mvc:view-controller path="/vuelist" view-name="vuelist"></mvc:view-controller>
 
    <!-- 开放对静态资源的访问 -->
    <mvc:default-servlet-handler />
 
    <!-- 开启mvc的注解驱动 -->
-   <mvc:annotation-driven />
+   <mvc:annotation-driven>
+      <mvc:message-converters register-defaults="true">
+         <!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 注解请求映射
+         默认是ISO-88859-1，避免乱码这里设置为UTF-8 -->
+         <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+             <property name="supportedMediaTypes" value="text/html;charset=UTF-8" />
+         </bean>
+         <!-- 启动JSON格式的配置,自动将格式转换成JSON格式，不需要其他类 -->
+         <bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+             <property name="supportedMediaTypes" value="application/json;charset=UTF-8" />
+         </bean>
+      </mvc:message-converters>
+   </mvc:annotation-driven>
 </beans>

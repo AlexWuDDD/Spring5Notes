@@ -50,8 +50,9 @@ public class TestMapper {
     List<Dept> depts = deptMapper.selectByExample(null);
     depts.forEach(System.out::println);
 
-    //2。生成员工数据，测试员工确认
-    //empMapper.insertSelective(new Emp(null, "Jerry", "M", "Jerry@alex.com", 1));
+    // 2。生成员工数据，测试员工确认
+    long result = empMapper.insertSelective(new Emp(null, "a1a1", "M", "a1a1@alex.com", 1));
+    System.out.println(result);
     //3. 批量插入员工, 批量，使用可以执行批量操作的sqlSession
     // for(){
     //   empMapper.insertSelective(new Emp(null, "Jerry", "M", "
