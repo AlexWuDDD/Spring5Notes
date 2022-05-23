@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <!-- <html lang="en"> -->
 
 <head>
@@ -17,115 +17,263 @@
   <script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
   <script type="text/javascript" th:src="@{/static/js/axios.min.js}"></script>
   <script type="text/javascript">
-    window.onload = function(){
+    window.onload = function () {
       var vue = new Vue({
         "el": "#app",
-        "data":{
-          pageInfo:{},
-          depts:{},
+        "data": {
+          pageInfo: {},
+          depts: {},
+          emp:{},
           isEmpNameValid: false,
           isEmailValid: false,
           empName: "",
           empNameErrorMsg: "请输入用户名",
           email: "",
+
+          checkall: false,
+          checkItems:[],
         },
-        watch:{
-          empName: function(val){
+        watch: {
+          checkItems: {
+            handler: function(val){
+              console.log(val)
+              if(this.allChosen()){
+                this.checkall = true
+              }
+              else{
+                this.checkall = false;
+              }
+            },
+            deep: true,
+          },
+          checkall: function(val){
+            console.log("checkall:" + val);
+            if(val){
+              this.setAllChosen();
+            }
+            else{
+              if(this.allChosen()){
+                this.setAllUnChosen();
+              }
+            }
+  
+          },
+          emp: {
+            handler: function(val){
+            console.log(val);
+              let regMail = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
+              if (!regMail.test(val.email)) {
+                this.isEmailValid = false
+              }
+              else {
+                this.isEmailValid = true;
+              }
+            },
+            deep: true
+          },
+          empName: function (val) {
             console.log("watch empName:" + val);
             let regName = /(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5}$)/;
-            if(!regName.test(val)){
+            if (!regName.test(val)) {
               this.isEmpNameValid = false;
-              this.empNameErrorMsg="用户名必须是6-16位英文字母、数字或下划线组成或者2-5位中文"
+              this.empNameErrorMsg = "用户名必须是6-16位英文字母、数字或下划线组成或者2-5位中文"
               return;
-            }else{
+            } else {
               this.isEmpNameValid = true;
-              this.empNameErrorMsg=""
+              this.empNameErrorMsg = ""
             }
             // 校验用户名是否可用
             axios({
-              method:'get',
+              method: 'get',
               url: "checkempname",
-              params:{
+              params: {
                 empname: val
               }
-            }).then(function(value){
+            }).then(function (value) {
               console.log(value);
-              if(value.data.code == 100){
+              if (value.data.code == 100) {
                 vue.isEmpNameValid = true;
-                vue.empNameErrorMsg="用户名可用";
-              }else{
+                vue.empNameErrorMsg = "用户名可用";
+              } else {
                 vue.isEmpNameValid = false;
-                vue.empNameErrorMsg="用户名已存在，不可用"
+                vue.empNameErrorMsg = "用户名已存在，不可用"
               }
-            }).catch(function(reason){
+            }).catch(function (reason) {
               console.log(reason);
             });
           },
-          email: function(val){
+          email: function (val) {
             console.log("watch email:" + val);
             let regMail = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
-            if(!regMail.test(val)){
+            if (!regMail.test(val)) {
               this.isEmailValid = false
             }
-            else{
+            else {
               this.isEmailValid = true;
             }
           }
         },
-        methods:{
-          getEmps: function(pn){
-            axios({
-              method:"get",
-              url:"empswithmsg",
-              params:{
-                pn:pn
-              }
-            }).then(function(value){
-              vue.pageInfo = value.data.extend.pageInfo;
-              console.log(vue.pageInfo);
-            }).catch(function(reason){
-              console.log(reason);
-            });
-          },
-          getDepts: function(){
-            axios({
-              method:"get",
-              url:"depts"
-            }).then(function(value){
-              vue.depts = value.data.extend.depts;
-              console.log(vue.depts);
-            }).catch(function(reason){
-              console.log(reason);
-            });
-          },
-          addEmp: function(){
-            const formData = new FormData(this.$refs['form']);
-            const data={}
-            for(let [key, val] of formData.entries()){
-              Object.assign(data, {[key]: val})
+        methods: {
+          emp_delete_all(){
+            if(!this.hasChosen()){
+              alert("请先选中要删除的员工");
+              return;
             }
-            data.dId = parseInt(data.dId);
-            console.log(data);
-            if(!this.isEmpNameValid || !this.isEmailValid){
+            let empIds = [];
+            let empNames = []
+            for(let i = 0; i < this.pageInfo.list.length; ++i){
+              if(this.checkItems[i]){
+                empIds.push(this.pageInfo.list[i].empId);
+                empNames.push(this.pageInfo.list[i].empName);
+              }
+            }
+            if(confirm("确定要删除" + empNames.join(",") + "吗？")){
+              let ids = empIds.join("-");
+              axios({
+              method: 'delete',
+              url: "emp/"+ids
+              }).then(function(){
+                alert("删除成功");
+                vue.getEmps(vue.pageInfo.pageNum);
+              }).catch(function(reason){
+                console.log(reason);
+              });
+            }
+          },
+          hasChosen(){
+            let sum = 0;
+            for(let i =0; i < this.checkItems.length; ++i){
+              sum += this.checkItems[i];
+            }
+            return sum > 0;
+          },
+          allChosen(){
+            let sum = 0;
+            for(let i =0; i < this.checkItems.length; ++i){
+              sum += this.checkItems[i];
+            }
+            return sum == this.checkItems.length;
+          },
+          setAllChosen(){
+            for(let i =0; i < this.checkItems.length; ++i){
+              this.checkItems[i] = true;
+            }
+          },
+          setAllUnChosen(){
+            for(let i =0; i < this.checkItems.length; ++i){
+              this.checkItems[i] = false;
+            }
+          },
+          deleteSingleEmp: function(id, name){
+            if(!confirm("删除员工：" + name + "?")){
               return;
             }
             axios({
-              method:"post",
-              url:"emp",
-              data:data
+              method: 'delete',
+              url: "emp/"+id
+            }).then(function(){
+              alert("删除成功");
+              vue.getEmps(vue.pageInfo.pageNum);
+            }).catch(function(reason){
+              console.log(reason);
+            });
+          },
+          updateEmp: function(){
+            axios({
+              method: 'put',
+              url: "emp/" + this.emp.empId,
+              data: this.emp
             }).then(function(value){
+              console.log(value);
+              if(value.data.code == 100){
+                alert(value.data.msg);
+                $("#emp_edit_modal").modal("hide");
+                vue.getEmps(vue.pageInfo.pageNum);
+              }else{
+                alert(value.data.msg);
+              }
+            }).catch(function(reason){
+              console.log(reason);
+            });
+          },
+          clearAll: function(){
+            this.isEmailValid = false;
+            this.isEmpNameValid = false;
+            this.empNameErrorMsg = "请输入用户名";
+          },
+          getEmp: function(id){
+            this.emp={};
+            axios({
+              method: 'get',
+              url: "emp/"+id,
+            }).then(function (value) {
+              console.log(value);
+              vue.emp = value.data.extend.emp;
+              vue.getDepts();
+            }).catch(function (reason) {
+              console.log(reason);
+            });
+          },
+          getEmps: function (pn) {
+            axios({
+              method: "get",
+              url: "empswithmsg",
+              params: {
+                pn: pn
+              }
+            }).then(function (value) {
+              vue.pageInfo = value.data.extend.pageInfo;
+              vue.checkall = false;
+              vue.checkItems = [];
+              for (let i = 0; i < vue.pageInfo.list.length; i++) {
+                vue.checkItems.push(false);
+              }
+              console.log(vue.pageInfo);
+            }).catch(function (reason) {
+              console.log(reason);
+            });
+          },
+          getDepts: function () {
+            this.clearAll();
+            axios({
+              method: "get",
+              url: "depts"
+            }).then(function (value) {
+              vue.depts = value.data.extend.depts;
+              console.log(vue.depts);
+            }).catch(function (reason) {
+              console.log(reason);
+            });
+          },
+          addEmp: function () {
+            const formData = new FormData(this.$refs['form']);
+            const data = {}
+            for (let [key, val] of formData.entries()) {
+              Object.assign(data, { [key]: val })
+            }
+            data.dId = parseInt(data.dId);
+            console.log(data);
+            if (!this.isEmpNameValid || !this.isEmailValid) {
+              return;
+            }
+            axios({
+              method: "post",
+              url: "emp",
+              data: data
+            }).then(function (value) {
               alert(value.data.msg);
+              if (value.data.code == 200) {
+                return;
+              }
               $("#emp_add_modal").modal("hide");
               vue.getEmps(vue.pageInfo.total);
-              vue.isEmailValid = false;
-              vue.isEmpNameValid = false;
-              vue.empNameErrorMsg = "请输入用户名";
-            }).catch(function(reason){
+              vue.clearAll();
+            }).catch(function (reason) {
               console.log(reason);
             });
           }
         },
-        mounted: function(){
+        mounted: function () {
           this.getEmps(1);
         }
       });
@@ -144,31 +292,35 @@
     <!-- 按钮 -->
     <div class="row">
       <div class="col-4 offset-8">
-        <button @click="getDepts" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#emp_add_modal">新增</button>
-        <button type="button" class="btn btn-danger">删除</button>
+        <button @click="getDepts" type="button" class="btn btn-primary" data-bs-toggle="modal"
+          data-bs-target="#emp_add_modal">新增</button>
+        <button type="button" class="btn btn-danger" @click="emp_delete_all">删除</button>
       </div>
     </div>
 
     <!-- 新增员工对话框 -->
-    <div class="modal fade" id="emp_add_modal" ref="emp_add_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="emp_add_modal" ref="emp_add_modal" tabindex="-1" aria-labelledby="addModalLabel"
+      aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">员工添加</h5>
+            <h5 class="modal-title" id="addModalLabel">员工添加</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <form @submit.prevent="addEmp" ref="form">
               <div class="mb-3">
                 <label for="empName" class="form-label">empName</label>
-                <input type="text" class="form-control" id="empName" name="empName" :class="{'is-invalid': !isEmpNameValid}" v-model="empName">
+                <input type="text" class="form-control" id="empName" name="empName"
+                  :class="{'is-invalid': !isEmpNameValid}" v-model="empName">
                 <div id="empNameFeedback" class="invalid-feedback" v-if="!isEmpNameValid">
                   {{empNameErrorMsg}}
                 </div>
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">email</label>
-                <input type="text" class="form-control" id="email" name="email" :class="{'is-invalid': !isEmailValid}" v-model="email">
+                <input type="text" class="form-control" id="email" name="email" :class="{'is-invalid': !isEmailValid}"
+                  v-model="email">
                 <div id="emailFeedback" class="invalid-feedback" v-if="!isEmailValid">
                   邮箱格式不正确
                 </div>
@@ -189,15 +341,71 @@
               </div>
               <div class="mb-3">
                 <label for="department" class="form-label">department</label>
-                <select name="dId" id="department" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                <select name="dId" id="department" class="form-select form-select-lg mb-3"
+                  aria-label=".form-select-lg example">
                   <option v-for="dept in depts" :value=dept.deptId>{{dept.deptName}}</option>
                 </select>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                <button type="submit" class="btn btn-primary" :class="{disabled: !isEmailValid || !isEmpNameValid}">提交</button>
+                <button type="submit" class="btn btn-primary"
+                  :class="{disabled: !isEmailValid || !isEmpNameValid}">提交</button>
               </div>
-            </form>            
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑员工对话框 -->
+    <div class="modal fade" id="emp_edit_modal" ref="emp_edit_modal" tabindex="-1" aria-labelledby="editModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">员工修改</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="empName" class="form-label">empName</label>
+                <input type="text" readonly class="form-control-plaintext" id="empName" name="empName" :value="emp.empName">
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">email</label>
+                <input type="text" class="form-control" id="email" name="email" :class="{'is-invalid': !isEmailValid}"
+                  v-model="emp.email">
+                <div id="emailFeedback" class="invalid-feedback" v-if="!isEmailValid">
+                  邮箱格式不正确
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="gender" id="flexRadioDefault1" value="M" v-model="emp.gender">
+                  <label class="form-check-label" for="flexRadioDefault1">
+                    男
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="gender" id="flexRadioDefault2" value="F" v-model="emp.gender">
+                  <label class="form-check-label" for="flexRadioDefault2">
+                    女
+                  </label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="department" class="form-label">department</label>
+                <select name="dId" id="department" class="form-select form-select-lg mb-3"
+                  aria-label=".form-select-lg example" v-model="emp.dId">
+                  <option v-for="dept in depts" :value=dept.deptId>{{dept.deptName}}</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" :class="{disabled: !isEmailValid}" @click="updateEmp">提交</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -209,6 +417,9 @@
         <table class="table table-hover">
           <thead>
             <tr>
+              <th>
+                <input class="form-check-input" type="checkbox" id="check_all" v-model="checkall">
+              </th>
               <th scope="col">#</th>
               <th scope="col">empName</th>
               <th scope="col">gender</th>
@@ -218,23 +429,32 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="emp in pageInfo.list">
+            <tr v-for="(emp, index) in pageInfo.list">
+              <th>
+                <input class="form-check-input" type="checkbox" id="check_item" v-model="checkItems[index]">
+              </th>
               <th scope="row">{{emp.empId}}</th>
               <td>{{emp.empName}}</td>
               <td>{{emp.gender}}</td>
               <td>{{emp.email}}</td>
               <td>{{emp.department.deptName}}</td>
               <td>
-                <button type="button" class="btn btn-info btn-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                data-bs-target="#emp_edit_modal" @click="getEmp(emp.empId)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-pencil" viewBox="0 0 16 16">
+                    <path
+                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                   </svg>
                   编辑
                 </button>
-                <button type="button" class="btn btn-danger btn-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                <button type="button" class="btn btn-danger btn-sm" @click="deleteSingleEmp(emp.empId, emp.empName)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+                    viewBox="0 0 16 16">
+                    <path
+                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                    <path fill-rule="evenodd"
+                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
                   </svg>
                   删除
                 </button>
@@ -255,10 +475,10 @@
         <nav aria-label="Page navigation example">
           <ul class="pagination">
             <li class="page-item" :class="{disabled: pageInfo.isFirstPage}">
-              <a class="page-link"  @click="getEmps(1)">首页</a>
+              <a class="page-link" @click="getEmps(1)">首页</a>
             </li>
             <li class="page-item" v-if="pageInfo.hasPreviousPage">
-              <a class="page-link" aria-label="Previous"  @click="getEmps(pageInfo.pageNum-1)">
+              <a class="page-link" aria-label="Previous" @click="getEmps(pageInfo.pageNum-1)">
                 <span aria-hidden="true">&laquo;</span>
               </a>
             </li>
@@ -268,16 +488,16 @@
               </li>
             </div>
             <li class="page-item" v-if="pageInfo.hasNextPage">
-              <a class="page-link" aria-label="Next"  @click="getEmps(pageInfo.pageNum+1)">
+              <a class="page-link" aria-label="Next" @click="getEmps(pageInfo.pageNum+1)">
                 <span aria-hidden="true">&raquo;</span>
               </a>
             </li>
             <li class="page-item" :class="{disabled: pageInfo.isLastPage}">
-              <a class="page-link"  @click="getEmps(pageInfo.pages)">尾页</a>
+              <a class="page-link" @click="getEmps(pageInfo.pages)">尾页</a>
             </li>
           </ul>
         </nav>
-      </div>  
+      </div>
     </div>
   </div>
 </body>

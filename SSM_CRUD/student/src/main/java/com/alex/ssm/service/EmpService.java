@@ -33,6 +33,37 @@ public class EmpService {
     empMapper.insertSelective(emp);
   }
 
+  /** 
+   * 查找员工
+  */
+  public Emp findEmp(Integer id){
+    return empMapper.selectByPrimaryKeyWithDept(id);
+  }
+
+  /** 
+   * 员工更新
+  */
+  public void updateEmp(Emp emp){
+    empMapper.updateByPrimaryKeySelective(emp);
+  }
+
+  /** 
+   * 删除单个员工
+  */
+  public void deleteSingleEmp(Integer id){
+    empMapper.deleteByPrimaryKey(id);
+  }
+
+  /**
+   * 删除批量员工
+   */
+  public void deleteBatch(List<Integer> ids){
+    EmpExample example = new EmpExample();
+    Criteria criteria = example.createCriteria();
+    criteria.andEmpIdIn(ids);
+    empMapper.deleteByExample(example);
+  }
+
   /**
    * 检验用户名是否可用
    * count == 0 可用， 反之，不可用

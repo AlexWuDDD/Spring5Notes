@@ -1,12 +1,20 @@
 package com.alex.ssm.bean;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+
+// import javax.validation.constraints.Email;
+
+
 public class Emp {
     private Integer empId;
 
+    @Pattern(regexp = "^([a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5}$)", message="用户名必须是6-16位英文字母、数字或下划线组成或者2-5位中文")
     private String empName;
 
     private String gender;
 
+    @Email(message = "邮箱格式不正确")
     private String email;
 
     private Integer dId;

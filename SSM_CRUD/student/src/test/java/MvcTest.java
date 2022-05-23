@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * 使用Spring测试模块提供的测试请求功能，测试curd请求的正确性
@@ -168,7 +170,7 @@ public class MvcTest {
   public void testNameCheck(){
     try {
       //模拟请求拿到返回值
-      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/checkempname").param("empname", "alexwu")).andReturn();
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/checkempname").param("empname", "111")).andReturn();
       
       assertNotEquals(result, null);
 
@@ -180,5 +182,48 @@ public class MvcTest {
     }
   }
 
+  @Test
+  public void testFindEmp(){
+    try {
+      //模拟请求拿到返回值
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/emp/2")).andReturn();
+      
+      assertNotEquals(result, null);
 
+      //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+      String content = result.getResponse().getContentAsString();
+      System.out.println("content:" + content);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  // mockMVC cannot work witj @Valid
+  // @Test
+  // public void testAddEmp(){
+  //   try {
+  //     //模拟请求拿到返回值
+  //     MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/emp")
+  //     .content(asJsonString(new Emp(null, "111", "M", "111@qq.com", 1)))
+  //     .contentType(MediaType.APPLICATION_JSON)
+  //     .accept(MediaType.APPLICATION_JSON)).andReturn();
+      
+  //     assertNotEquals(result, null);
+
+  //     //请求成功后，请求域中会有pageInfo，我们可以取出pageInfo进行验证
+  //     String content = result.getResponse().getContentAsString();
+  //     System.out.println("content:" + content);
+  //   } catch (Exception e) {
+  //     e.printStackTrace();
+  //   }
+  // }
+
+
+  public static String asJsonString(final Object obj) {
+    try {
+        return new ObjectMapper().writeValueAsString(obj);
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
+}
 }
