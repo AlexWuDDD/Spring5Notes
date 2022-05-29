@@ -1,5 +1,7 @@
 lib/
 */lib/
 */*/target/
+*/*/.mvn/
+*/*/.vscode
 */*/.apt_generated/
 */*/.apt_generated_tests/

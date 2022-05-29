@@ -1,0 +1,26 @@
+person:
+  user-name: "alex"
+  # userName: 'zhangsan \n 李四'
+  # 单引号会将\n作为字符串输出 双引号会将\n作为换行符输出
+  # 双引号不会转义，单引号会转义
+  boss: true
+  birth: 2019/12/9
+  age: 18
+  interests: [足球, 篮球]
+  animal: [阿猫，阿狗]
+  score:
+    english: 80
+    math: 90
+  salarys:
+    - 9999.98
+    - 9999.99
+  pet:
+    name: 小黑
+    weight: 99.99
+  allPets:
+    sick:
+      - { name: 小红, weight: 99.99 }
+      - { name: 小绿, weight: 99.99 }
+    health:
+      - { name: 小白, weight: 99.99 }
+      - { name: 小蓝, weight: 99.99 }
