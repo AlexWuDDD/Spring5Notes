@@ -1,10 +1,23 @@
-# spring:
-  # 静态资源访问路径
-  # mvc:
-  #   static-path-pattern: /res/**
+spring:
   
-  # web:
-  #   resources:
-  #     # 静态资源存放路径
-  #     static-locations: [classpath:/haha]
+  mvc:
+  # 静态资源访问路径
+  #   static-path-pattern: /res/**
+    hiddenmethod:
+      filter:
+        enabled: true
+
+    #http://127.0.0.1:8080/test/user?format=json
+    #http://127.0.0.1:8080/test/user?format=xml
+    contentnegotiation:
+      favor-parameter: true      
+  
+  web:
+    resources:
+      # 静态资源存放路径
+      # static-locations: [classpath:/haha]
+      #禁用/使用所有静态资源
+      add-mappings: true
+      cache:
+        period: 11000
   
