@@ -20,4 +20,7 @@ spring:
       add-mappings: true
       cache:
         period: 11000
-  
+
+server:
+  servlet:
+    context-path: /world
